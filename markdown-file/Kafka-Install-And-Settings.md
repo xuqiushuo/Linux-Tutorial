@@ -1,5 +1,14 @@
 # Kafka 安装和配置
 
+
+## 对于版本
+
+- 由于 Kafka 经常会被连接到各个地方去，所以对于 Kafka 的版本，一般不能用太新的，要看你用在什么地方。
+- [Flink 的要求](https://ci.apache.org/projects/flink/flink-docs-release-1.6/dev/connectors/kafka.html)
+- [Spark 的要求](https://spark.apache.org/docs/latest/streaming-kafka-integration.html)
+- [Spring 的要求](http://projects.spring.io/spring-kafka/)
+
+
 ## 消息系统的好处
 
 - 解耦（各个业务系统各自为政，有各自新需求，各自系统自行修改，只通过消息来通信）
@@ -33,6 +42,7 @@
 	- Partition：是物理上的概念，每个 Topic 包含一个或多个 Partition。一般有几个 Broker，填写分区最好是等于大于节点值。分区目的主要是数据分片，解决水平扩展、高吞吐量。当 Producer 生产消息的时候，消息会被算法计算后分配到对应的分区，Consumer 读取的时候算法也会帮我们找到消息所在分区，这是内部实现的，应用层面不用管。
 	- Replication-factor：副本。假设有 3 个 Broker 的情况下，当副本为 3 的时候每个 Partition 会在每个 Broker 都会存有一份，目的主要是容错。
 		- 其中有一个 Leader。
+		- 如果你只有一个 Broker，但是创建 Topic 的时候指定 Replication-factor 为 3，则会报错
 	- Consumer Group：每个 Consumer 属于一个特定的 Consumer Group（可为每个 Consumer 指定 group name，若不指定 group name 则属于默认的 group）一般一个业务系统集群指定同一个一个 group id，然后一个业务系统集群只能一个节点来消费同一个消息。
 		- Consumer Group 信息存储在 zookeeper 中，需要通过 zookeeper 的客户端来查看和设置
 		- 如果某 Consumer Group 中 consumer 数量少于 partition 数量，则至少有一个 consumer 会消费多个 partition 的数据
@@ -360,14 +370,30 @@ wurstmeister/kafka:latest
 - 如果 kafka1 输入的消息，kafka2 和 kafka3 能收到，则表示已经成功。
 
 
+#### Kafka 认证配置
 
-#### 部署 kafka-manager（未能访问成功）
+- 可以参考：[Kafka的SASL/PLAIN认证配置说明](http://www.2bowl.info/kafka%e7%9a%84saslplain%e8%ae%a4%e8%af%81%e9%85%8d%e7%bd%ae%e8%af%b4%e6%98%8e/)
 
-- 节点 1：`docker run -d --name=kafka-manager1 --restart=always -p 9000:9000 -e ZK_HOSTS="youmeekhost1:2181,youmeekhost2:2181,youmeekhost3:2181" sheepkiller/kafka-manager:latest`
+
+#### Kafka 单纯监控 KafkaOffsetMonitor
+
+- Github 官网：<https://github.com/quantifind/KafkaOffsetMonitor>
+	- README 带了下载地址和运行命令
+	- 只是已经很久不更新了
+
+#### 部署 kafka-manager
+
+- Github 官网：<https://github.com/yahoo/kafka-manager>
+	- 注意官网说明的版本支持
+- 节点 1（没成功）：`docker run -d --name=kafka-manager1 --restart=always -p 9000:9000 -e ZK_HOSTS="youmeekhost1:2181,youmeekhost2:2181,youmeekhost3:2181" sheepkiller/kafka-manager:latest`
+- 源码类安装可以看：[Kafka监控工具—Kafka Manager](http://www.2bowl.info/kafka%e7%9b%91%e6%8e%a7%e5%b7%a5%e5%85%b7-kafka-manager/)
+- Kafka manager 是一款管理 + 监控的工具，比较重
+
+
 
 ----------------------------------------------------------------------------------------------
 
-## Kafka 1.0.1 源码安装（也支持 1.0.2）
+## Kafka 1.0.1 源码安装（也支持 1.0.2、0.11.0.3、0.10.2.2）
 
 - 测试环境：2G 内存足够
 - 一台机子：CentOS 7.4，根据文章最开头，已经修改了 hosts
@@ -391,6 +417,8 @@ broker.id=1
 listeners=PLAINTEXT://0.0.0.0:9092
 # 向 Zookeeper 注册的地址。这里可以直接填写外网IP地址，但是不建议这样做，而是通过配置 hosts 的方式来设置。不然填写外网 IP 地址会导致所有流量都走外网（单节点多 broker 的情况下该参数必改）
 advertised.listeners=PLAINTEXT://youmeekhost:9092
+# zookeeper，存储了 broker 的元信息
+zookeeper.connect=youmeekhost:2181
 # 日志数据目录，可以通过逗号来指定多个目录（单节点多 broker 的情况下该参数必改）
 log.dirs=/data/kafka/logs
 # 创建新 topic 的时候默认 1 个分区。需要特别注意的是：已经创建好的 topic 的 partition 的个数只可以被增加，不能被减少。
@@ -399,14 +427,13 @@ num.partitions=1
 # 允许删除topic
 delete.topic.enable=false
 # 允许自动创建topic（默认是 true）
-auto.create.topics.enable=false
+auto.create.topics.enable=true
 # 磁盘IO不足的时候，可以适当调大该值 ( 当内存足够时 )
 #log.flush.interval.messages=10000
 #log.flush.interval.ms=1000
 # kafka 数据保留时间 默认 168 小时 == 7 天
 log.retention.hours=168
-# zookeeper，存储了 broker 的元信息
-zookeeper.connect=youmeekhost:2181
+
 
 # 其余都使用默认配置，但是顺便解释下：
 # borker 进行网络处理的线程数
@@ -429,11 +456,10 @@ socket.request.max.bytes=104857600
 	- 后台方式运行 kafka 服务：`cd /usr/local/kafka && bin/kafka-server-start.sh -daemon config/server.properties`
 	- 停止 kafka 服务：`cd /usr/local/kafka && bin/kafka-server-stop.sh`
 - 再开一个终端测试：
-	- 进入目录：`cd /usr/local/kafka`
-	- 创建 topic 命令：`bin/kafka-topics.sh --create --zookeeper youmeekhost:2181 --replication-factor 1 --partitions 1 --topic my-topic-test`
-	- 查看 topic 命令：`bin/kafka-topics.sh --list --zookeeper youmeekhost:2181`
-	- 删除 topic：`bin/kafka-topics.sh --delete --topic my-topic-test --zookeeper youmeekhost:2181`
-	- 给 topic 发送消息命令：`bin/kafka-console-producer.sh --broker-list youmeekhost:9092 --topic my-topic-test`，然后在出现交互输入框的时候输入你要发送的内容
+	- 创建 topic 命令：`cd /usr/local/kafka && bin/kafka-topics.sh --create --zookeeper youmeekhost:2181 --replication-factor 1 --partitions 1 --topic my-topic-test`
+	- 查看 topic 命令：`cd /usr/local/kafka && bin/kafka-topics.sh --list --zookeeper youmeekhost:2181`
+	- 删除 topic：`cd /usr/local/kafka && bin/kafka-topics.sh --delete --topic my-topic-test --zookeeper youmeekhost:2181`
+	- 给 topic 发送消息命令：`cd /usr/local/kafka && bin/kafka-console-producer.sh --broker-list youmeekhost:9092 --topic my-topic-test`，然后在出现交互输入框的时候输入你要发送的内容
 	- 再开一个终端，进入 kafka 容器，接受消息：`cd /usr/local/kafka && bin/kafka-console-consumer.sh --bootstrap-server youmeekhost:9092 --topic my-topic-test --from-beginning`
 	- 此时发送的终端输入一个内容回车，接受消息的终端就可以收到。
 - Spring Boot 依赖：

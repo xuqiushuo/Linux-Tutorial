@@ -17,11 +17,12 @@ yum makecache fast
 
 echo "-----------------------------------------开始安装 docker"
 
-yum install -y docker-ce
+yum install -y docker-ce-18.06.1.ce-3.el7
 
 echo "-----------------------------------------启动 Docker"
 
 systemctl start docker.service
+systemctl enable docker.service
 
 echo "-----------------------------------------安装结束"
 
@@ -42,16 +43,6 @@ echo "-----------------------------------------运行 hello world 镜像"
 
 docker run hello-world
 
-echo "-----------------------------------------安装 docker compose"
-echo "docker compose 的版本检查：https://docs.docker.com/compose/install/#install-compose"
-
-curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-
-chmod +x /usr/local/bin/docker-compose
-
-echo "-----------------------------------------输出 docker compose 版本号"
-
-docker-compose --version
 
 
 

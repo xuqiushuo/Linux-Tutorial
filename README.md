@@ -1,8 +1,14 @@
-# Java 程序员眼中的 Linux
+
+## 团队 DevOps 方案参考
+
+<a target="_blank" href="https://e.coding.net/?utm_source=judasn">
+<img id="judasn" src="https://upload-images.jianshu.io/upload_images/12159-e3279861ff8655c9.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+</a>
+
 
 ## 初衷(Original Intention)
 
-- 整理下自己所学
+- 整理下自己所学。**但是比较随意，所以很多地方不够严谨，所以请带着批评的思维阅读。**
 - 带动更多的人进入 Linux 世界，特别是做 Java 开发的人
 - Github 项目地址，欢迎 `Fork`、`Star`：<https://github.com/judasn/Linux-Tutorial>
 - 文章中用到的一些安装包归纳整理：<http://pan.baidu.com/s/1skAwrFn>
@@ -68,6 +74,7 @@
 - [Jira 安装和配置](markdown-file/Jira-Install-And-Settings.md)
 - [TeamCity 安装和配置](markdown-file/TeamCity-Install-And-Settings.md)
 - [Nginx 安装和配置](markdown-file/Nginx-Install-And-Settings.md)
+- [wrk 安装和配置](markdown-file/wrk-Install-And-Settings.md)
 - [FastDFS 安装和配置](markdown-file/FastDFS-Install-And-Settings.md)
 - [FastDFS 结合 GraphicsMagick](markdown-file/FastDFS-Nginx-Lua-GraphicsMagick.md)
 - [RabbitMQ 安装和配置](markdown-file/RabbitMQ-Install-And-Settings.md)
@@ -93,11 +100,14 @@
 - [CI 整套服务安装和使用](markdown-file/CI-Install-And-Usage.md)
 - [YApi 安装和配置](markdown-file/YApi-Install-And-Settings.md)
 - [Kafka 安装和配置](markdown-file/Kafka-Install-And-Settings.md)
+- [Hadoop 安装和配置](markdown-file/Hadoop-Install-And-Settings.md)
 - [Showdoc 安装和配置](markdown-file/Showdoc-Install-And-Settings.md)
 - [WordPress 安装和配置](markdown-file/WordPress-Install-And-Settings.md)
 - [GoAccess 安装和配置](markdown-file/GoAccess-Install-And-Settings.md)
 - [Portainer 安装和配置](markdown-file/Portainer-Install-And-Settings.md)
-
+- [Grafana 安装和配置](markdown-file/Grafana-Install-And-Settings.md)
+- [Ansible 安装和配置](markdown-file/Ansible-Install-And-Settings.md)
+- [Wormhole + Flink 最佳实践](markdown-file/Wormhole-Install-And-Settings.md)
 
 ## 联系(Contact)
 
@@ -136,3 +146,4 @@
 ## AD
 
 - [推荐：程序员的个性化网址导航：GitNavi.com](http://www.gitnavi.com/u/judasn/)
+- [适合后端开发者的前端 React-Admin](https://github.com/satan31415/umi-admin)
